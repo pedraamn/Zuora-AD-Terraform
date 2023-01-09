@@ -2,7 +2,7 @@ resource "random_uuid" "spa_admin_roled_id" {}
 resource "random_uuid" "spa_user_roled_id" {}
 data "azuread_client_config" "current" {} 
 resource "azuread_application" "spa_application" {
-  display_name                                = "thirdmaintf4"
+  display_name                                = "sampleEnterpriseApp"
   /*single_page_application {
     redirect_uris                         = [
     "https://yourdomain.com/"
