@@ -1,18 +1,18 @@
 resource "random_uuid" "spa_admin_roled_id" {}
 resource "random_uuid" "spa_user_roled_id" {}
 data "azuread_client_config" "current" {} 
-variable "github_org_name" {
-}
-variable "azure_domain"{
-}
+variable "github_org_name" {}
+variable "azure_domain"{}
+variable "app_name" {}
 resource "azuread_application" "spa_application" {
-  display_name                                = "sixthmaintf"
+  display_name                                = var.app_name
   /*single_page_application {
     redirect_uris                         = [
     "https://yourdomain.com/"
     ]
   }*/
 
+    // you may find this setting on the single sign on tab of the app that gets created
     web {
     redirect_uris = [
       format("https://github.com/orgs/%s/saml/consume",var.github_org_name),
@@ -49,6 +49,7 @@ resource "azuread_application" "spa_application" {
     }
   }
 
+  // these app roles get assigned to users when we add them to the enterprise app
   app_role {
     allowed_member_types = ["User"] # Specifies whether this app role definition can be assigned to users and groups by setting to User, or to other applications (that are accessing this application in a standalone scenario) by setting to Application, or to both.
     description          = "Admin Role"
@@ -87,6 +88,8 @@ resource "azuread_application" "spa_application" {
 resource "azuread_service_principal" "spa_app_sp" {
   application_id = azuread_application.spa_application.application_id
   preferred_single_sign_on_mode = "saml"
+
+  // you may find this setting on the single sign on tab of the app that gets created
   login_url                     = format("https://github.com/orgs/%s/sso",var.github_org_name)
 
   feature_tags {
