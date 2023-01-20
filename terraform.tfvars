@@ -1,3 +1,3 @@
-github_org_name = "orgtest"
+github_org_name = "danguyen-demo-org"
 azure_domain = "@danxargmail.onmicrosoft.com"
-app_name = "sixthmaintf"
+app_name = "demo-enterprise-app"
