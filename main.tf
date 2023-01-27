@@ -1,11 +1,94 @@
 resource "random_uuid" "spa_admin_roled_id" {}
 resource "random_uuid" "spa_user_roled_id" {}
 data "azuread_client_config" "current" {} 
-variable "github_org_name" {}
+
 variable "azure_domain"{}
-variable "app_name" {}
+
+locals {
+  # users from csv file
+  users = flatten([
+    for user in csvdecode(file("users.csv")) : [
+      {
+        UPN = user.UPN
+        organization = user.organization
+        team = user.manager
+      } 
+    ]
+  ])
+  users_map = { for user in local.users : user.UPN => user }
+
+  // map of team to team members. The important part is the unique team name, used to create groups
+  team_to_members_map = {
+    for item in local.users :
+    item.team => item.UPN... // the elllipses means accept duplicate keys
+  }
+
+  // map of organization to team members
+  org_to_members_map = {
+    for user in local.users :
+    user.organization => user.UPN... // the elllipses means accept duplicate keys
+  }
+
+  // get list of enterprise apps created
+  enterprise_apps_list = [
+    for tn, t in azuread_application.spa_application : {
+      id = t.application_id
+      name = t.display_name
+      userRole = t.app_role_ids["userRole"]
+    }
+  ]
+  // map of enterprise apps with name as the key value
+  enterprise_apps_map = {
+    for app in local.enterprise_apps_list : app.name => app
+  }
+
+    // get service principles that were created
+  service_principle_id_list = [
+    for tn, t in azuread_service_principal.spa_app_sp : {
+      id = t.id
+      application_name = trimsuffix(trimprefix(t.login_url, "https://github.com/orgs/"), "/sso")
+    }
+  ]
+  // map of service principle => its object id
+  service_principle_id_map = {
+    for sp in local.service_principle_id_list : sp.application_name => sp.id
+  }
+
+
+  // get object ids and user principal name from the resource used to find existing users
+  existing_user_id_list = [
+    for tn, t in data.azuread_user.existing_users : {
+      id = t.id
+      display_name = t.display_name
+      user_principal_name = t.user_principal_name
+    }
+  ]
+  // map of user UPN => user's object id for existing users 
+  existing_user_id_map = {
+    for user in local.existing_user_id_list : trimsuffix(user.user_principal_name, var.azure_domain) => user.id
+  }
+
+    // get object ids and group display name from the resource used to create the groups
+  group_id_list = [
+    for tn, t in azuread_group.group : {
+      id = t.id
+      name = t.display_name
+    }
+  ]
+  // map of group display name => group object id
+  group_id_map = {
+    for group in local.group_id_list : group.name => group.id
+  }
+}
+
+data "azuread_application_template" "this" {
+  display_name = "GitHub Enterprise Cloud - Organization" // use github org template currently not working properly
+}
+
 resource "azuread_application" "spa_application" {
-  display_name                                = var.app_name
+  for_each = local.org_to_members_map
+  display_name                                = each.key
+  template_id  = data.azuread_application_template.this.template_id
   /*single_page_application {
     redirect_uris                         = [
     "https://yourdomain.com/"
@@ -14,7 +97,7 @@ resource "azuread_application" "spa_application" {
 
     web {
     redirect_uris = [
-      format("https://github.com/orgs/%s/saml/consume",var.github_org_name),
+      format("https://github.com/orgs/%s/saml/consume",each.key),
     ]
 
     implicit_grant {
@@ -24,9 +107,9 @@ resource "azuread_application" "spa_application" {
   }
   
   
-  /*identifier_uris = [
-    "https://github.com/orgs/danguyen-test6",
-  ]*/
+  //identifier_uris = [
+  //  "https://github.com/orgs/danguyen-test6",
+  //]
   
   //identifier_uris                     = ["https://yourdomain.com"]
   sign_in_audience                    = "AzureADMyOrg"
@@ -87,12 +170,26 @@ resource "azuread_application" "spa_application" {
     ]
   }
 }
+output "service_principle_map" {
+  value = local.service_principle_id_map
+}
+output "enterprise_apps_map" {
+  value = local.enterprise_apps_map
+}
+/*
+output "user_id_map" {
+  value = local.existing_user_id_map
+}*/
 
-# Creating the service principal for spa app
+# Create the service principals for the apps
 resource "azuread_service_principal" "spa_app_sp" {
-  application_id = azuread_application.spa_application.application_id
+  for_each = local.enterprise_apps_map
+  //application_id = azuread_application.spa_application.application_id
+  application_id = local.enterprise_apps_map[each.key].id
+  use_existing   = true // use exisiting service principle that comes from the template
   preferred_single_sign_on_mode = "saml"
-  login_url                     = format("https://github.com/orgs/%s/sso",var.github_org_name)
+  login_url                     = format("https://github.com/orgs/%s/sso",each.key)
+  app_role_assignment_required  = true
 
   feature_tags {
     enterprise = true
@@ -103,124 +200,38 @@ resource "azuread_service_principal" "spa_app_sp" {
 }
 
 
-#User groups (from csv)
-locals {
-  team_to_member = flatten([
-    for user in csvdecode(file("users.csv")) : [
-      {
-        manager = user.manager
-        UPN = user.UPN
-      }
-    ]
-  ])
-  // map of manager to team members. The important part is the unique manager, used to create groups
-  team_to_member_map = {
-    for pu in local.team_to_member :
-    pu.manager => pu.UPN... // the elllipses means accept duplicate keys
-  }
 
-  // get object ids and group display name from the resource used to create the groups
-  group_id_list = [
-    for tn, t in azuread_group.csv_group : {
-      id = t.id
-      name = t.display_name
-    }
-  ]
-  // map of group display name => group object id
-  group_id_map = {
-    for group in local.group_id_list : group.name => group.id
-  }
-
-  // get object ids and user principal name from the resource used to create the users
-  user_id_list = [
-    for tn, t in azuread_user.csv_user : {
-      id = t.id
-      display_name = t.display_name
-      user_principal_name = t.user_principal_name
-    }
-  ]
-  // map of user UPN => user's object id
-  user_id_map = {
-    for user in local.user_id_list : trimsuffix(user.user_principal_name, "@danxargmail.onmicrosoft.com") => user.id
-  }
-}
-
-// create users from csv file
-/*resource "azuread_user" "csv_user" {
+// get existing users
+data "azuread_user" "existing_users" {
   for_each = {
     for user in csvdecode(file("users.csv")) :
     user.UPN => user
-  }
-  user_principal_name = format("%s@danxargmail.onmicrosoft.com",each.value.UPN)
-  display_name        = format("%s %s",each.value.first_name,each.value.last_name)
-  mail_nickname       = each.value.mail_nickname
-  password            = "SecretP@sswd99!"
-  force_password_change = true
-}*/
-
-// random password generator
-resource "random_password" "password" {
-  length  = 32
-  special = true
-  lower   = true
-  upper   = true
-  numeric  = true
+  } 
+  user_principal_name = "${each.value.UPN}${var.azure_domain}"
 }
 
-
-// create users from csv file
-resource "azuread_user" "csv_user" {
-  for_each = {
-    for user in csvdecode(file("users.csv")) :
-    user.UPN => user
-  }
-  user_principal_name = format("%s%s", each.value.UPN, var.azure_domain)
-  display_name        = format("%s %s",each.value.first_name, each.value.last_name)
-  mail_nickname       = each.value.mail_nickname
-  // we don't care about this password since the user is going to reset it on first login
-  password            = random_password.password.result
-  //force_password_change = true
-
-  // zuora email, this is where the password reset is getting sent to
-  other_mails = [
-    "{each.value.UPN}@zuora.com"
-  ]
-
-  lifecycle {
-    ignore_changes = [
-      password
-    ]
-  }
-}
-
-output "example" {
-  value = {
-    for pu in local.team_to_member :
-    pu.manager => pu.UPN... // the elllipses means accept duplicate keys
-  }
-}
-
-resource "azuread_app_role_assignment" "user_roles" {
-  for_each = local.user_id_map
-  resource_object_id  = azuread_service_principal.spa_app_sp.object_id
-  principal_object_id = each.value
-  app_role_id         = azuread_application.spa_application.app_role_ids["userRole"]
-}
-
-// create groups from each manager
-resource "azuread_group" "csv_group" {
-  for_each = local.team_to_member_map
+// create groups from each team
+resource "azuread_group" "group" {
+  for_each = local.team_to_members_map
   display_name    = each.key
   security_enabled = true
 }
 
-// apply a group membership for each user in the file
+// apply a group membership for each user
 resource "azuread_group_member" "group_membership" {
-  for_each = {
-    for user in csvdecode(file("users.csv")) :
-    user.UPN => user
-  }
+  for_each = local.users_map
   // look up object ids for groups and members
-  group_object_id  = local.group_id_map[each.value.manager]
-  member_object_id = local.user_id_map[each.value.UPN]
+  group_object_id  = local.group_id_map[each.value.team]
+  member_object_id = local.existing_user_id_map[each.value.UPN]
+}
+
+
+// add all users to the correct enterprise app
+resource "azuread_app_role_assignment" "user_roles" {
+  for_each = local.users_map
+  //resource_object_id  = azuread_service_principal.spa_app_sp.object_id
+  resource_object_id = local.service_principle_id_map[each.value.organization]
+  principal_object_id = local.existing_user_id_map[each.value.UPN]
+  //app_role_id         = azuread_application.spa_application.app_role_ids["userRole"]
+  app_role_id = local.enterprise_apps_map[each.value.organization].userRole
 }
