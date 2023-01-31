@@ -1,15 +1,15 @@
-module "terraform_test_module" {
+module "app1" {
     source  = "./enterprise_app"
     //version = "1.0.0"
     users_file_path = "./users.csv"
-    azure_domain = "@danxargmail.onmicrosoft.com"
-    organization_name = "danguyen-demo-org7"
+    azure_domain = "@zuoracloudeng.onmicrosoft.com"
+    organization_name = "zuora-platform"
 }
 
-module "terraform_test_module2" {
+module "app2" {
     source  = "./enterprise_app"
     //version = "1.0.0"
     users_file_path = "./users.csv"
-    azure_domain = "@danxargmail.onmicrosoft.com"
-    organization_name = "danguyen-demo-org8"
+    azure_domain = "@zuoracloudeng.onmicrosoft.com"
+    organization_name = "zuora-collect"
 }
