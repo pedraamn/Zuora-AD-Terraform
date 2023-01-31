@@ -1,4 +1,4 @@
-first_name,last_name,UPN,mail_nickname,manager,organization
-Test,Eight,teight,teight,group2,testorg3
-Daniel,Delgado,ddelgado,ddelgado,group3,testorg4
-Morgan,leFade,Morganlefade,Morganlefade,group3,testorg4
+UPN,team,organization
+teight,group2,danguyen-demo-org7
+ddelgado,group3,danguyen-demo-org8
+Morganlefade,group3,danguyen-demo-org8

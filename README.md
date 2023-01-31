@@ -1,15 +1,19 @@
 This creates enterprise applications and their service principles on Azure AD, then assigns users to their correct applications
 
-The applications need to be created first, then their service principles, and then members can be added.
+to apply configuration, 
+
+log into azure ad from your terminal. You may need to install the azure cli first
 
 ```
-terraform apply -target azuread_application.spa_application
-terraform apply -target azuread_service_principal.spa_app_sp
-<group creation will go here>
+brew update && brew install azure-cli
 ```
 
-Apply rest of configuration to apply memberships
+log in for the cli
+```
+az login
+```
 
+apply configuration
 ```
 terraform apply
 ```
