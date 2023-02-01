@@ -14,7 +14,7 @@ module "app2" {
     organization_name = "zuora-collect"
 }
 
-module "app2" {
+module "app3" {
     source  = "./enterprise_app"
     //version = "1.0.0"
     users_file_path = "./users.csv"
