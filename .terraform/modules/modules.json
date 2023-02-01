@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"app1","Source":"./enterprise_app","Dir":"enterprise_app"},{"Key":"app2","Source":"./enterprise_app","Dir":"enterprise_app"},{"Key":"app3","Source":"./enterprise_app","Dir":"enterprise_app"},{"Key":"","Source":"","Dir":"."}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"app1","Source":"./enterprise_app","Dir":"enterprise_app"},{"Key":"app2","Source":"./enterprise_app","Dir":"enterprise_app"},{"Key":"app3","Source":"./enterprise_app","Dir":"enterprise_app"}]}
