@@ -10,14 +10,14 @@ locals {
   users = flatten([
     for user in csvdecode(file(var.users_file_path)) : [
       {
-        UPN = user.UPN
+        upn = user.upn
         organization = user.organization
         //team = user.team
       } 
     ] if user.organization == var.organization_name
     // only look at users that belong to this organization
   ])
-  users_map = { for user in local.users : user.UPN => user }
+  users_map = { for user in local.users : user.upn => user }
 
   // get object ids and user principal name from the resource used to find existing users
   existing_user_id_list = [
@@ -140,13 +140,13 @@ resource "azuread_service_principal" "spa_app_sp" {
 // get existing users
 data "azuread_user" "existing_users" {
   for_each = local.users_map
-  user_principal_name = "${each.value.UPN}${var.azure_domain}"
+  user_principal_name = "${each.value.upn}${var.azure_domain}"
 }
 
 // add all users that belong to this enterprise app
 resource "azuread_app_role_assignment" "user_roles" {
   for_each = local.users_map
   resource_object_id  = azuread_service_principal.spa_app_sp.object_id
-  principal_object_id = local.existing_user_id_map[each.value.UPN]
+  principal_object_id = local.existing_user_id_map[each.value.upn]
   app_role_id = azuread_application.spa_application.app_role_ids["userRole"]
 }

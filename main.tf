@@ -1,7 +1,7 @@
 module "app1" {
     source  = "./enterprise_app"
     //version = "1.0.0"
-    users_file_path = "./users.csv"
+    users_file_path = "./csv/users.csv"
     azure_domain = "@zuoracloudeng.onmicrosoft.com"
     organization_name = "zuora-platform"
 }
@@ -9,7 +9,7 @@ module "app1" {
 module "app2" {
     source  = "./enterprise_app"
     //version = "1.0.0"
-    users_file_path = "./users.csv"
+    users_file_path = "./csv/users.csv"
     azure_domain = "@zuoracloudeng.onmicrosoft.com"
     organization_name = "zuora-collect"
 }
@@ -17,7 +17,7 @@ module "app2" {
 module "app3" {
     source  = "./enterprise_app"
     //version = "1.0.0"
-    users_file_path = "./users.csv"
+    users_file_path = "./csv/users.csv"
     azure_domain = "@zuoracloudeng.onmicrosoft.com"
     organization_name = "zuora-billing"
 }
@@ -25,7 +25,7 @@ module "app3" {
 module "app4" {
     source  = "./enterprise_app"
     //version = "1.0.0"
-    users_file_path = "./users.csv"
+    users_file_path = "./csv/users.csv"
     azure_domain = "@zuoracloudeng.onmicrosoft.com"
     organization_name = "zuora-revenue-core"
 }
@@ -33,7 +33,11 @@ module "app4" {
 module "app5" {
     source  = "./enterprise_app"
     //version = "1.0.0"
-    users_file_path = "./users.csv"
+    users_file_path = "./csv/users.csv"
     azure_domain = "@zuoracloudeng.onmicrosoft.com"
     organization_name = "zuora-zcloud"
+}
+
+module "ad_users_and_groups" {
+    source  = "./ad_users_and_groups"
 }
