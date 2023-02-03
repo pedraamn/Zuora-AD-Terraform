@@ -134,6 +134,11 @@ resource "azuread_service_principal" "spa_app_sp" {
     gallery    = false
     custom_single_sign_on = true
   }
+  lifecycle {
+    ignore_changes = [
+      service_principal_names // allow this field to be set manually
+    ]
+  }
   owners                       = [data.azuread_client_config.current.object_id] // sets whoever's running the tf as the owner
 }
 
