@@ -21,5 +21,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Terraform Init
+        run: terraform init
       - name: Terraform Apply
-        run: terraform apply -target module.ad_users_and_groups.azuread_group.csv_group
+        run: terraform apply -target module.ad_users_and_groups.azuread_group.csv_group -auto-approve
