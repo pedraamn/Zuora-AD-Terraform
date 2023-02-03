@@ -1,0 +1,25 @@
+
+
+name: "Terraform"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  ARM_CLIENT_ID: 657e23e8-49bb-4003-a2c9-0e7387c28be7
+  ARM_TENANT_ID: 0a7fee83-f3c4-405c-9e4c-701f7cd7a3b2
+  ARM_SUBSCRIPTION_ID: e1a4554c-b5a6-4f88-9941-24da70824ac8
+  ARM_CLIENT_SECRET: idD8Q~tp0juK4OAVxXOvh4C4N~QkUkRwDziDXab2
+
+jobs:
+  terraform:
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Terraform Apply
+        run: terraform apply -target module.ad_users_and_groups.azuread_group.csv_group
