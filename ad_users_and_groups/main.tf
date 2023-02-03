@@ -8,11 +8,6 @@ locals {
     existing_groups = csvdecode(file("./csvs/existing_groups.csv"))
     managers = csvdecode(file("./csvs/managers.csv"))
 
-    groupsmap = {
-        for group in local.groups :
-            group.name => group.name
-    }
-
     // maps each individual bucket to all of the AD groups that fall under
     bucket_to_groups = flatten([
         for row in local.groups : [
@@ -80,7 +75,7 @@ locals {
 
     existing_user_id_map = {
         for user in local.existing_user_id_list :
-            trimsuffix(user.user_principal_name, "@zuoradevhotmail.onmicrosoft.com") => user.id
+            trimsuffix(user.user_principal_name, "@zuoracloudeng.onmicrosoft.com") => user.id
     }
 
     // create string pairs of user_ids -> groups_ids in which they are to be added
@@ -118,7 +113,7 @@ resource "azuread_group" "csv_group" {
 // get existing users
 data "azuread_user" "existing_users" {
   for_each = {for user in local.users : user.upn => user}
-  user_principal_name = "${each.value.upn}@zuoradevhotmail.onmicrosoft.com"
+  user_principal_name = "${each.value.upn}@zuoracloudeng.onmicrosoft.com"
 }
 
 // apply group membership to users
@@ -144,4 +139,8 @@ output "printer7" {
 
 output "printer8" {
     value = local.user_group_id_pairs
+}
+
+output "printer9" {
+    value = local.bucket_to_existing_groups
 }
