@@ -5,7 +5,7 @@ name: "bash-example"
 on:
   push:
     paths:
-      - 'csvs/users.csv'
+      - 'csvs/**'
   pull_request:
 
 env:
