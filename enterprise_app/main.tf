@@ -136,7 +136,7 @@ resource "azuread_service_principal" "spa_app_sp" {
       service_principal_names // allow this field to be set manually
     ]
   }
-  owners                       = [data.azuread_client_config.current.object_id] // sets whoever's running the tf as the owner
+  owners                       = ["c790d1e3-2613-4f20-958a-66eedd649233"] // sets whoever's running the tf as the owner
 }
 
 // get existing users
