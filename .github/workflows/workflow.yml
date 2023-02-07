@@ -4,8 +4,8 @@ name: "Terraform"
 
 on:
   push:
-    branches:
-      - inactive
+    paths:
+      - './csvs/**'
   pull_request:
 
 env:
@@ -15,14 +15,12 @@ env:
   ARM_CLIENT_SECRET: idD8Q~tp0juK4OAVxXOvh4C4N~QkUkRwDziDXab2
 
 jobs:
-  terraform:
-    name: "Terraform"
+  Tester:
+    name: "Tester"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Terraform Init
-        run: terraform init
-      - name: Terraform Apply Groups
-        run: terraform apply -target module.ad_users_and_groups.azuread_group.csv_group -auto-approve
+      - name: Printer
+        run: echo "It's working"
       
