@@ -4,6 +4,7 @@ data "azuread_client_config" "current" {}
 variable "organization_name"{}
 variable "azure_domain"{}
 variable "users_file_path"{}
+variable "managers_file_path"{}
 
 locals {
   users = csvdecode(file(var.users_file_path))
@@ -12,7 +13,7 @@ locals {
   //map managers to the orgnaztion their team belongs
   manager_to_organization_map = {
     for manager in local.managers :
-      mananger.upn => manager.organization
+      manager.upn => manager.organization
   }
 
   // get object ids and user principal name from the resource used to find existing users
