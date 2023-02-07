@@ -1,6 +1,6 @@
 
 
-name: "Terraform"
+name: "bash-example"
 
 on:
   push:
@@ -15,12 +15,10 @@ env:
   ARM_CLIENT_SECRET: idD8Q~tp0juK4OAVxXOvh4C4N~QkUkRwDziDXab2
 
 jobs:
-  Tester:
-    name: "Tester"
+  bash-example:
     runs-on: ubuntu-latest
+    env:
+      MY_NAME: "Mona The Octocat"
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Printer
-        run: echo "It's working"
-      
+      - name: bash-version
+        run: echo "::add-mask::$MY_NAME"
