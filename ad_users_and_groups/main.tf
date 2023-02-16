@@ -1,4 +1,3 @@
-variable "organization_name"{}
 variable "azure_domain"{}
 variable "users_file_path"{}
 variable "managers_file_path"{}
