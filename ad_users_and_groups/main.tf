@@ -118,7 +118,7 @@ resource "azuread_group" "csv_group" {
 // get existing users
 data "azuread_user" "existing_users" {
   for_each = {for user in local.users : user.upn => user}
-  user_principal_name = "${each.value.upn}@zuoracloudeng.onmicrosoft.com"
+  user_principal_name = format("%s%s", each.value.upn, var.azure_domain)
 }
 
 // apply group membership to users
