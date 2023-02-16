@@ -1,12 +1,17 @@
-
+variable "organization_name"{}
+variable "azure_domain"{}
+variable "users_file_path"{}
+variable "managers_file_path"{}
+variable "groups_file_path"{}
+variable "existing_groups_file_path"{}
 
 
 #User groups (from csv)
 locals {
-    users = csvdecode(file("./csvs/users.csv"))
-    groups = csvdecode(file("./csvs/groups.csv"))
-    existing_groups = csvdecode(file("./csvs/existing_groups.csv"))
-    managers = csvdecode(file("./csvs/managers.csv"))
+    users = csvdecode(file(var.users_file_path))
+    groups = csvdecode(file(var.groups_file_path))
+    existing_groups = csvdecode(file(var.existing_groups_file_path))
+    managers = csvdecode(file(var.managers_file_path))
 
     // maps each individual bucket to all of the AD groups that fall under
     bucket_to_groups = flatten([
@@ -75,7 +80,7 @@ locals {
 
     existing_user_id_map = {
         for user in local.existing_user_id_list :
-            trimsuffix(user.user_principal_name, "@zuoracloudeng.onmicrosoft.com") => user.id
+            trimsuffix(user.user_principal_name, var.azure_domain) => user.id
     }
 
     // create string pairs of user_ids -> groups_ids in which they are to be added
@@ -105,7 +110,7 @@ output "testing1" {
 resource "azuread_group" "csv_group" {
   for_each = {for group in local.groups : group.name => group}
   display_name = each.value.name
-  owners = ["c790d1e3-2613-4f20-958a-66eedd649233"]
+  owners = [var.sam_object_id, var.pedraam_object_id, var.dan_object_id]
   security_enabled = true
 }
 
