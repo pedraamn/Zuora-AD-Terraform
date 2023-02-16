@@ -3,6 +3,9 @@ variable "users_file_path"{}
 variable "managers_file_path"{}
 variable "groups_file_path"{}
 variable "existing_groups_file_path"{}
+variable "sam_object_id"{}
+variable "pedraam_object_id"{}
+variable "dan_object_id"{}
 
 
 #User groups (from csv)
