@@ -1,4 +1,0 @@
-name,bucket
-AWS-EKS-Privileged-ReadOnly,developer
-AWS-EKS-Privileged-Administrator-Dev,developer
-AWS-EKS-Privileged-Administrator-Prod,infrastructure
