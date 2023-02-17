@@ -49,7 +49,4 @@ module "ad_users_and_groups" {
     managers_file_path = var.managers_file_path
     groups_file_path = var.groups_file_path
     existing_groups_file_path = var.existing_groups_file_path
-    sam_object_id = var.sam_object_id
-    pedraam_object_id = var.pedraam_object_id
-    dan_object_id = var.dan_object_id
 }

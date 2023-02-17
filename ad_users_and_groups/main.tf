@@ -3,10 +3,6 @@ variable "users_file_path"{}
 variable "managers_file_path"{}
 variable "groups_file_path"{}
 variable "existing_groups_file_path"{}
-variable "sam_object_id"{}
-variable "pedraam_object_id"{}
-variable "dan_object_id"{}
-
 
 #User groups (from csv)
 locals {
@@ -112,7 +108,7 @@ output "testing1" {
 resource "azuread_group" "csv_group" {
   for_each = {for group in local.groups : group.name => group}
   display_name = each.value.name
-  owners = [var.sam_object_id, var.pedraam_object_id, var.dan_object_id]
+  owners = ["76b0dd23-772e-4e9f-9001-7a1c1e2f824b"]
   security_enabled = true
 }
 

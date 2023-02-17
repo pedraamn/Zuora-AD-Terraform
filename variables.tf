@@ -27,21 +27,3 @@ variable "existing_groups_file_path" {
   type        = string
   default     = ""
 }
-
-variable "sam_object_id" {
-  description = "Sam's objected id"
-  type        = string
-  default     = ""
-}
-
-variable "pedraam_object_id" {
-  description = "Pedraam's objected id"
-  type        = string
-  default     = ""
-}
-
-variable "dan_object_id" {
-  description = "Dan's objected id"
-  type        = string
-  default     = ""
-}
