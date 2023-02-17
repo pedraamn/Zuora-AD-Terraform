@@ -106,6 +106,7 @@ output "testing1" {
 }
 // create groups_ids
 resource "azuread_group" "csv_group" {
+  groups = csvdecode(file(var.groups_file_path))
   for_each = {for group in local.groups : group.name => group}
   display_name = each.value.name
   owners = ["76b0dd23-772e-4e9f-9001-7a1c1e2f824b"]
